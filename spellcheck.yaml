@@ -16,5 +16,6 @@ matrix:
   - pyspelling.filters.html:
       comments: false
       ignores:
+      - :matches(code, pre)
       - code
       - pre
