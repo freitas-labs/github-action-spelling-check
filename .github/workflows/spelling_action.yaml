@@ -1,9 +1,6 @@
 name: Spellcheck Action
 
 on:
-  # Enabling manual test
-  # REF: https://stackoverflow.com/questions/58933155/manual-workflow-triggers-in-github-actions
-  workflow_dispatch:
   push:
 
 jobs:
@@ -12,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # The checkout step
       - name: Clone or Checkout repository
         uses: actions/checkout@v4
 
@@ -20,10 +16,3 @@ jobs:
         name: Spellcheck
         with:
           task_name: Markdown
-          output_file: spellcheck-output.txt
-
-      - uses: actions/upload-artifact@v3
-        name: Archive spellcheck output
-        with:
-          name: Spellcheck artifact
-          path: spellcheck-output.txt
