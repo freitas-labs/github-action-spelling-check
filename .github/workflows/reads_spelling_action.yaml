@@ -17,11 +17,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      # - name: List Committed Files
-      #   run: |
-      #     echo "List of files committed in the push event:"
-      #     echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
 
       - name: List Pushed Files
         id: list-pushed-files
@@ -31,10 +26,6 @@ jobs:
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$added_files"
           echo "ADDED_FILES=$PWD" >> "$added_files"
-
-      # - name: Get changed files
-      #   id: changed-files
-      #   uses: tj-actions/changed-files@v39
 
       - name: Get Read File
         id: get-read-file
@@ -50,25 +41,26 @@ jobs:
             exit 1
           else
           
-          # Filter files that are in the specific directory
-          filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/.*")
-          echo "$filtered_files"
-          
-          # Check the size of the filtered_files array
-          if [ -z "$filtered_files" ]; then
-            echo "No files found in the '${{ env.reads-folder }}' directory."
-            exit 1
-          else
-            echo "Found files in the '${{ env.reads-folder }}' directory."
+            # Filter files that are in the specific directory
+            filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/.*")
+            echo "$filtered_files"
             
-            # Get the first element if there is more than one
-            if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
-              first_file=$(echo "$filtered_files" | head -n 1)
-              echo "Found more than one file. Only the first file will be considered: $first_file"
-              echo "PUSHED_READ_FILE=$PWD" >> "$first_file"
+            # Check the size of the filtered_files array
+            if [ -z "$filtered_files" ]; then
+              echo "No files found in the '${{ env.reads-folder }}' directory."
+              exit 1
             else
-              echo "Only one file found, no need to process the first file."
-              echo "PUSHED_READ_FILE=$PWD" >> "$filtered_files"
+              echo "Found files in the '${{ env.reads-folder }}' directory."
+              
+              # Get the first element if there is more than one
+              if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
+                first_file=$(echo "$filtered_files" | head -n 1)
+                echo "Found more than one file. Only the first file will be considered: $first_file"
+                echo "PUSHED_READ_FILE=$PWD" >> "$first_file"
+              else
+                echo "Only one file found, no need to process the first file."
+                echo "PUSHED_READ_FILE=$PWD" >> "$filtered_files"
+              fi
             fi
           fi
 
