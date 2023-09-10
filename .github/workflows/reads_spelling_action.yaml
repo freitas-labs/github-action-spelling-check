@@ -41,7 +41,8 @@ jobs:
           
             echo "$PWD"
             # Filter files that are in the specific directory
-            filtered_files=$(echo "$added_files" | grep "${{ env.reads-folder }}")
+            # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
+            filtered_files=$(echo "$added_files" | grep '${{ env.reads-folder }}') || true
             echo "$filtered_files"
             
             # Check the size of the filtered_files array
