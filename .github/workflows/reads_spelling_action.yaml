@@ -25,7 +25,11 @@ jobs:
           echo "Current commit: ${{ github.sha }}"
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$added_files"
-          echo "ADDED_FILES=$added_files" >> "$GITHUB_OUTPUT"
+          
+          # multiline output
+          echo "ADDED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo $added_files >> $GITHUB_OUTPUT 
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get Read File
         id: get-read-file
