@@ -11,6 +11,7 @@ jobs:
     env:
       temporary-file-name: temp-file.md
       reads-folder: content/reads/
+      scripts-folder: .github/scripts/
 
     steps:
       - name: Clone or Checkout repository
@@ -42,8 +43,6 @@ jobs:
             echo "No pushed files were found!!"
             exit 125
           else
-          
-            echo "$PWD"
             # Filter files that are in the specific directory
             # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
             filtered_files=$(echo "$added_files" | grep '${{ env.reads-folder }}') || true
@@ -72,7 +71,7 @@ jobs:
         run: |
           echo ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}
           echo ${{ env.temporary-file-name }}
-          ${{ github.action_path }}/scripts/copy_section_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
+          ${scripts-folder}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
         shell: bash
 
       - name: Spellcheck the temporary file
@@ -83,5 +82,5 @@ jobs:
 
       - name: Delete temporary file
         run: |
-          ${{ github.action_path }}/scripts/delete_file.sh ${{ env.temporary-file-name }}
+          ${scripts-folder}delete_file.sh ${{ env.temporary-file-name }}
         shell: bash
