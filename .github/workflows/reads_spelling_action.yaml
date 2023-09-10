@@ -10,7 +10,7 @@ jobs:
 
     env:
       temporary-file-name: temp-file.md
-      reads-folder: /content/reads/
+      reads-folder: content/reads/
 
     steps:
       - name: Clone or Checkout repository
