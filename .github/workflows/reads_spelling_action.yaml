@@ -36,7 +36,7 @@ jobs:
 
           if [ -z "$added_files" ]; then
             echo "No pushed files were found!!"
-            exit 1
+            exit 125
           else
           
             # Filter files that are in the specific directory
@@ -46,7 +46,7 @@ jobs:
             # Check the size of the filtered_files array
             if [ -z "$filtered_files" ]; then
               echo "No files found in the '${{ env.reads-folder }}' directory."
-              exit 1
+              exit 125
             else
               echo "Found files in the '${{ env.reads-folder }}' directory."
               
