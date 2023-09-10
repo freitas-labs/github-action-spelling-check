@@ -36,6 +36,12 @@ jobs:
         run: |
           # Get the list of added files
           added_files="${{ steps.changed-files.outputs.stdout }}"
+          echo "$added_files"
+
+          if [ -z "$added_files" ]; then
+            echo "No files found pushed"
+            exit 1
+          else
           
           # Filter files that are in the specific directory
           filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/.*")
