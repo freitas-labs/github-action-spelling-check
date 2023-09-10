@@ -16,22 +16,26 @@ jobs:
       - name: Clone or Checkout repository
         uses: actions/checkout@v4
       
-      - name: List Committed Files
-        run: |
-          echo "List of files committed in the push event:"
-          git log -m -1 --name-only --pretty="format:" ${{ github.sha }}^..${{ github.sha }}
+      # - name: List Committed Files
+      #   run: |
+      #     echo "List of files committed in the push event:"
+      #     echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
 
-      - name: List Pushed Files
-        run: |
-          echo "Before commit: ${{ github.event.before }}"
-          echo "Current commit: ${{ github.sha }}"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}"
-        id: list_pushed_files
+      # - name: List Pushed Files
+      #   run: |
+      #     echo "Before commit: ${{ github.event.before }}"
+      #     echo "Current commit: ${{ github.sha }}"
+      #     git diff --name-only ${{ github.event.before }} ${{ github.sha }}"
+      #   id: list_pushed_files
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
 
       - name: Process Pushed Files
         run: |
           # Get the list of added files
-          added_files="${{ steps.list_pushed_files.outputs.stdout }}"
+          added_files="${{ steps.changed-files.outputs.stdout }}"
           
           # Filter files that are in the specific directory
           filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/.*")
