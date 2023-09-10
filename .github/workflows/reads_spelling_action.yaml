@@ -15,16 +15,22 @@ jobs:
     steps:
       - name: Clone or Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: List Pushed Files
         run: |
+          echo "Before commit: ${{ github.event.before }}"
+          echo "Current commit: ${{ github.sha }}"
           git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^${{ env.reads-folder }}/.*"
         id: list_pushed_files
 
       - name: Process Pushed Files
         run: |
-          # Get the list of added/modified files from the previous step's output
-          filtered_files="${{ steps.list_pushed_files.outputs.stdout }}"
+          # Get the list of added files
+          added_files="${{ steps.list_pushed_files.outputs.stdout }}"
+          
+          # Filter files that are in the specific directory
+          filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/")
+          echo "$filtered_files"
           
           # Check the size of the filtered_files array
           if [ -z "$filtered_files" ]; then
