@@ -4,8 +4,8 @@ on:
   push:
 
 jobs:
-  Spellcheck:
-    name: Spellcheck
+  Reads-Spellcheck:
+    name: Spellcheck for reads files
     runs-on: ubuntu-latest
 
     env:
