@@ -41,7 +41,7 @@ jobs:
           
             echo "$PWD"
             # Filter files that are in the specific directory
-            filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}")
+            filtered_files=$(echo "$added_files" | grep "${{ env.reads-folder }}")
             echo "$filtered_files"
             
             # Check the size of the filtered_files array
