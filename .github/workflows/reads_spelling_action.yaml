@@ -17,12 +17,12 @@ jobs:
         uses: actions/checkout@v4
         
       - name: List Pushed Files
-        run: echo "${{ github.event.head_commit.added }}"
+        run: echo "git diff --name-only ${{ github.event.before }} ${{ github.sha }}"
 
       - name: Process Pushed Files
         run: |
           # Get the list of added files
-          added_files="${{ github.event.head_commit.added }}"
+          added_files="git diff --name-only ${{ github.event.before }} ${{ github.sha }}"
           
           # Filter files that are in the specific directory
           filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/")
