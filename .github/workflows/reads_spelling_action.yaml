@@ -1,0 +1,65 @@
+name: Spellcheck Action For pushed files under the folder .\content\reads
+
+on:
+  push:
+
+jobs:
+  Spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+
+    env:
+      temporary-file-name: temp-file.md
+      reads-folder: .\content\reads
+
+    steps:
+      - name: Clone or Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: List Pushed Files
+        run: echo "${{ github.event.head_commit.added }}"
+
+      - name: Process Pushed Files
+        run: |
+          # Get the list of added files
+          added_files="${{ github.event.head_commit.added }}"
+          
+          # Filter files that are in the specific directory
+          filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}/")
+          echo ${{ filtered_files }}
+          
+          # Check the size of the filtered_files array
+          if [ -z "$filtered_files" ]; then
+            echo "No files found in the '${{ env.reads-folder }}' directory."
+            exit 1
+          else
+            echo "Found files in the '${{ env.reads-folder }}' directory."
+            
+            # Get the first element if there is more than one
+            if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
+              first_file=$(echo "$filtered_files" | head -n 1)
+              echo "Found more than one file. Only the first file will be considered: $first_file"
+              echo "PUSHED_READ_FILE=$PWD" >> "$first_file"
+            else
+              echo "Only one file found, no need to process the first file."
+              echo "PUSHED_READ_FILE=$PWD" >> "$filtered_files"
+            fi
+          fi
+
+      - name: Create temporary file with content to be checked
+        run: |
+          echo ${{ steps.web-folder.outputs.PUSHED_READ_FILE }}
+          echo ${{ env.temporary-file-name }}
+          ${{ github.action_path }}/scripts/copy_section_to_file.sh ${{ steps.web-folder.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
+        shell: bash
+
+      - name: Spellcheck the temporary file
+        uses: rojopolis/spellcheck-github-actions@v0
+        with:
+          source_files: ${{ env.temporary-file-name }}
+          task_name: Markdown
+
+      - name: Delete temporary file
+        run: |
+          ${{ github.action_path }}/scripts/delete_file.sh ${{ env.temporary-file-name }}
+        shell: bash
