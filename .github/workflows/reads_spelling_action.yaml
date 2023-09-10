@@ -19,7 +19,7 @@ jobs:
       - name: List Committed Files
         run: |
           echo "List of files committed in the push event:"
-          git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
+          echo $(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
 
       - name: List Pushed Files
         run: |
