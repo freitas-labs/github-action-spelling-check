@@ -29,6 +29,7 @@ jobs:
           echo "Before commit: ${{ github.event.before }}"
           echo "Current commit: ${{ github.sha }}"
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$added_files"
           echo "ADDED_FILES=$PWD" >> "$added_files"
 
       # - name: Get changed files
