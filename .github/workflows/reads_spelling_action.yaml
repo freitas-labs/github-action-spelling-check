@@ -39,6 +39,7 @@ jobs:
             exit 125
           else
           
+            echo "$PWD"
             # Filter files that are in the specific directory
             filtered_files=$(echo "$added_files" | grep "^${{ env.reads-folder }}")
             echo "$filtered_files"
