@@ -25,7 +25,7 @@ jobs:
           echo "Current commit: ${{ github.sha }}"
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$added_files"
-          echo "ADDED_FILES=$PWD" >> "$added_files"
+          echo "ADDED_FILES=$added_files" >> "$GITHUB_OUTPUT"
 
       - name: Get Read File
         id: get-read-file
@@ -37,7 +37,7 @@ jobs:
           echo "$added_files"
 
           if [ -z "$added_files" ]; then
-            echo "No files found pushed"
+            echo "No pushed files were found!!"
             exit 1
           else
           
@@ -56,10 +56,10 @@ jobs:
               if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
                 first_file=$(echo "$filtered_files" | head -n 1)
                 echo "Found more than one file. Only the first file will be considered: $first_file"
-                echo "PUSHED_READ_FILE=$PWD" >> "$first_file"
+                echo "PUSHED_READ_FILE=$first_file" >> "$GITHUB_OUTPUT"
               else
                 echo "Only one file found, no need to process the first file."
-                echo "PUSHED_READ_FILE=$PWD" >> "$filtered_files"
+                echo "PUSHED_READ_FILE=$filtered_files" >> "$GITHUB_OUTPUT"
               fi
             fi
           fi
