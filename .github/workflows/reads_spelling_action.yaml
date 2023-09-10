@@ -10,7 +10,7 @@ jobs:
 
     env:
       temporary-file-name: temp-file.md
-      reads-folder: .\content\reads
+      reads-folder: ./content/reads
 
     steps:
       - name: Clone or Checkout repository
@@ -21,12 +21,12 @@ jobs:
       #     echo "List of files committed in the push event:"
       #     echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
 
-      # - name: List Pushed Files
-      #   run: |
-      #     echo "Before commit: ${{ github.event.before }}"
-      #     echo "Current commit: ${{ github.sha }}"
-      #     git diff --name-only ${{ github.event.before }} ${{ github.sha }}"
-      #   id: list_pushed_files
+      - name: List Pushed Files
+        run: |
+          echo "Before commit: ${{ github.event.before }}"
+          echo "Current commit: ${{ github.sha }}"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+        id: list_pushed_files
 
       - name: Get changed files
         id: changed-files
@@ -34,6 +34,8 @@ jobs:
 
       - name: Process Pushed Files
         run: |
+          echo "${{ steps.list_pushed_files.outputs.stdout }}"
+
           # Get the list of added files
           added_files="${{ steps.changed-files.outputs.stdout }}"
           echo "$added_files"
