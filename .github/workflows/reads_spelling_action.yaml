@@ -81,6 +81,7 @@ jobs:
           task_name: Markdown
 
       - name: Delete temporary file
+        if: steps.test-app.outcome == 'success'
         run: |
           ${{ env.scripts-folder }}delete_file.sh ${{ env.temporary-file-name }}
         shell: bash
