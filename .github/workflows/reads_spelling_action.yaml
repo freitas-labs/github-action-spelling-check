@@ -68,6 +68,7 @@ jobs:
           fi
 
       - name: Create temporary file with content to be checked
+        id: create-temp-file
         run: |
           echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}"
           echo "Temporary file: ${{ env.temporary-file-name }}"
@@ -81,7 +82,7 @@ jobs:
           task_name: Markdown
 
       - name: Delete temporary file
-        if: steps.test-app.outcome == 'success'
+        if: steps.create-temp-file.outcome == 'success'
         run: |
           ${{ env.scripts-folder }}delete_file.sh ${{ env.temporary-file-name }}
         shell: bash
