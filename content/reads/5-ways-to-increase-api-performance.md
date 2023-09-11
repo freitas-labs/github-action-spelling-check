@@ -16,9 +16,6 @@ https://twitter.com/alexxubyte/status/1684595145101189120
 ---
 
 
-
-
-
 1. **Pagination**
 This is a common optimization when the size of the result is large. The results are streaming back to the client to improve the service responsiveness.
 
