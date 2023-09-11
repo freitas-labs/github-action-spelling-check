@@ -46,7 +46,7 @@ jobs:
             # Filter files that are in the specific directory
             # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
             filtered_files=$(echo "$added_files" | grep '${{ env.reads-folder }}') || true
-            echo "$filtered_files"
+            echo "Reads files: $filtered_files"
             
             # Check the size of the filtered_files array
             if [ -z "$filtered_files" ]; then
@@ -61,7 +61,7 @@ jobs:
                 echo "Found more than one file. Only the first file will be considered: $first_file"
                 echo "PUSHED_READ_FILE=$first_file" >> "$GITHUB_OUTPUT"
               else
-                echo "Only one file found, no need to process the first file."
+                echo "Only one file found: $filtered_files"
                 echo "PUSHED_READ_FILE=$filtered_files" >> "$GITHUB_OUTPUT"
               fi
             fi
@@ -69,9 +69,9 @@ jobs:
 
       - name: Create temporary file with content to be checked
         run: |
-          echo ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}
-          echo ${{ env.temporary-file-name }}
-          "${scripts-folder}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}"
+          echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}"
+          echo "Temporary file: ${{ env.temporary-file-name }}"
+          ${{ env.scripts-folder }}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
         shell: bash
 
       - name: Spellcheck the temporary file
@@ -82,5 +82,5 @@ jobs:
 
       - name: Delete temporary file
         run: |
-          "${scripts-folder}delete_file.sh ${{ env.temporary-file-name }}"
+          ${{ env.scripts-folder }}delete_file.sh ${{ env.temporary-file-name }}
         shell: bash
