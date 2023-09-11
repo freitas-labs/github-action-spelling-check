@@ -29,7 +29,7 @@ jobs:
           
           # multiline output
           echo "ADDED_FILES<<EOF" >> $GITHUB_OUTPUT
-          echo $added_files >> $GITHUB_OUTPUT 
+          echo "$added_files" >> $GITHUB_OUTPUT 
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get Read File
@@ -37,7 +37,7 @@ jobs:
         run: |
           # Get the list of added files
           added_files="${{ steps.list-pushed-files.outputs.ADDED_FILES }}"
-          echo "$added_files"
+          echo "Added files: $added_files"
 
           if [ -z "$added_files" ]; then
             echo "No pushed files were found!!"
