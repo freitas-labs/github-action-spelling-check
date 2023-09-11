@@ -7,8 +7,6 @@ fi
 
 filename="$1"
 section_filename="$2"
-# filename="C:/Users/rute_/OneDrive/Documentos/freitas-labs/github-action-spelling-check/content/reads/how-to-do-anything-in-typescript-with-type-guards.md"
-# section_filename="section_content_to_be_checked.txt"
 
 if [ ! -f "$filename" ]; then
   echo "File not found: $filename"
