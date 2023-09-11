@@ -71,7 +71,7 @@ jobs:
         run: |
           echo ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}
           echo ${{ env.temporary-file-name }}
-          ${scripts-folder}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
+          "${scripts-folder}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}"
         shell: bash
 
       - name: Spellcheck the temporary file
@@ -82,5 +82,5 @@ jobs:
 
       - name: Delete temporary file
         run: |
-          ${scripts-folder}delete_file.sh ${{ env.temporary-file-name }}
+          "${scripts-folder}delete_file.sh ${{ env.temporary-file-name }}"
         shell: bash
