@@ -4,15 +4,150 @@ on:
   push:
 
 jobs:
-  build:
-    name: Spellcheck
+  get-type-of-content:
+    name: Get type of content
     runs-on: ubuntu-latest
+    
+    outputs:
+      read-files: ${{ steps.get-files.outputs.READ_FILES }}
+      other-files: ${{ steps.get-files.outputs.OTHER_FILES }}
+
+    env:
+      temporary-file-name: temp-file.md
+      reads-folder: content/reads/
+      scripts-folder: .github/scripts/
 
     steps:
       - name: Clone or Checkout repository
         uses: actions/checkout@v4
-
-      - uses: rojopolis/spellcheck-github-actions@v0
-        name: Spellcheck
         with:
+          fetch-depth: 0
+
+      - name: List Pushed Files
+        id: list-pushed-files
+        run: |
+          echo "Before commit: ${{ github.event.before }}"
+          echo "Current commit: ${{ github.sha }}"
+          added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$added_files"
+          
+          # multiline output
+          echo "ADDED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$added_files" >> $GITHUB_OUTPUT 
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get Files
+        id: get-files
+        run: |
+          # Get the list of added files
+          added_files="${{ steps.list-pushed-files.outputs.ADDED_FILES }}"
+          echo "Added files: $added_files"
+
+          if [ -z "$added_files" ]; then
+            echo "No pushed files were found!!"
+            exit 125
+          else
+            # Filter files that are in the specific directory
+            # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
+            read_files=$(echo "$added_files" | grep '${{ env.reads-folder }}') || true
+            other_files=$(echo "$added_files" | grep -v '${{ env.reads-folder }}') || true
+            echo "Read files: $read_files"
+            echo "Other files: $other_files"
+            
+            # {
+            #   echo "READ_FILES=$read_files" 
+            #   echo "OTHER_FILES=$other_files" 
+            # } >> "$GITHUB_OUTPUT"
+            echo "READ_FILES=$read_files" >> "$GITHUB_OUTPUT"
+            
+          fi
+
+  read-content:
+    name: Check read content
+    runs-on: ubuntu-latest
+    needs: get-type-of-content
+
+    env:
+      temporary-file-name: temp-file.md
+      reads-folder: content/reads/
+      scripts-folder: .github/scripts/
+
+    steps:
+      - name: Clone or Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate if exists read content
+        id: list-pushed-files
+        run: |
+          filtered_files=${{ needs.get-type-of-content.outputs.READ_FILES }}
+          # Check the size of the filtered_files array
+          if [ -z "$filtered_files" ]; then
+            echo "No files found in the '${{ env.reads-folder }}' directory."
+            exit 125
+          else
+            echo "Found files in the '${{ env.reads-folder }}' directory."
+            
+            # Get the first element if there is more than one
+            if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
+              first_file=$(echo "$filtered_files" | head -n 1)
+              echo "Found more than one file. Only the first file will be considered: $first_file"
+              echo "PUSHED_READ_FILE=$first_file" >> "$GITHUB_OUTPUT"
+            else
+              echo "Only one file found: $filtered_files"
+              echo "PUSHED_READ_FILE=$filtered_files" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Create temporary file with content to be checked
+        id: create-temp-file
+        run: |
+          echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}"
+          echo "Temporary file: ${{ env.temporary-file-name }}"
+          ${{ env.scripts-folder }}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
+        shell: bash
+
+      - name: Spellcheck the temporary file
+        uses: rojopolis/spellcheck-github-actions@v0
+        with:
+          source_files: ${{ env.temporary-file-name }}
+          task_name: Markdown
+
+      - name: Delete temporary file
+        if: always() && steps.create-temp-file.outcome == 'success'
+        run: |
+          ${{ env.scripts-folder }}delete_file.sh ${{ env.temporary-file-name }}
+        shell: bash
+
+  other-content:
+    name: Check other content
+    runs-on: ubuntu-latest
+    needs: get-type-of-content
+
+    env:
+      reads-folder: content/reads/
+
+    steps:
+      - name: Clone or Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate if exists read content
+        id: list-pushed-files
+        run: |
+          files=${{ needs.get-type-of-content.outputs.OTHER_FILES }}
+
+          if [ -z "$files" ]; then
+            echo "No files found ouside of the '${{ env.reads-folder }}' directory."
+            exit 0
+          else
+            echo "Found files ouside of the '${{ env.reads-folder }}' directory."
+          fi
+
+      - name: Spellcheck the other content
+        uses: rojopolis/spellcheck-github-actions@v0
+        with:
+          source_files: ${{ needs.get-type-of-content.outputs.OTHER_FILES }}
           task_name: Markdown
