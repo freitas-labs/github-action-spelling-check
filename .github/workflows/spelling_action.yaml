@@ -54,11 +54,10 @@ jobs:
             echo "Read files: $read_files"
             echo "Other files: $other_files"
             
-            # {
-            #   echo "READ_FILES=$read_files" 
-            #   echo "OTHER_FILES=$other_files" 
-            # } >> "$GITHUB_OUTPUT"
-            echo "READ_FILES=$read_files" >> "$GITHUB_OUTPUT"
+            {
+              echo "READ_FILES=$read_files" 
+              echo "OTHER_FILES=$other_files" 
+            } >> "$GITHUB_OUTPUT"
             
           fi
 
@@ -116,6 +115,7 @@ jobs:
         shell: bash
 
       - name: Spellcheck the temporary file
+        if: steps.create-temp-file.outcome == 'success'
         uses: rojopolis/spellcheck-github-actions@v0
         with:
           source_files: ${{ env.temporary-file-name }}
