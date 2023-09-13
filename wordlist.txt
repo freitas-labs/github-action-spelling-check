@@ -5,3 +5,5 @@ api
 xu
 alexxubyte
 https
+lastmod
+github
