@@ -80,11 +80,11 @@ jobs:
       - name: Validate if exists read content
         id: get-read-file
         run: |
-          filtered_files=${{ needs.get-type-of-content.outputs.READ_FILES }}
+          filtered_files=${{ needs.get-type-of-content.outputs.read-files }}
           # Check the size of the filtered_files array
           if [ -z "$filtered_files" ]; then
             echo "No files found in the '${{ env.reads-folder }}' directory."
-            echo "IS_TO_PERFORME_CHECK=false" >> "$GITHUB_OUTPUT"
+            echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
           else
             echo "Found files in the '${{ env.reads-folder }}' directory."
             
@@ -94,19 +94,19 @@ jobs:
               echo "Found more than one file. Only the first file will be considered: $first_file"
               {
                 echo "PUSHED_READ_FILE=$first_file"
-                echo "IS_TO_PERFORME_CHECK=true"
+                echo "IS_TO_PERFORM_CHECK=true"
               } >> "$GITHUB_OUTPUT"
             else
               echo "Only one file found: $filtered_files"
               {
                 echo "PUSHED_READ_FILE=$filtered_files"
-                echo "IS_TO_PERFORME_CHECK=true"
+                echo "IS_TO_PERFORM_CHECK=true"
               } >> "$GITHUB_OUTPUT"
             fi
           fi
 
       - name: Create temporary file with content to be checked
-        if: ${{ steps.get-read-file.outputs.IS_TO_PERFORME_CHECK == 'true' }}
+        if: ${{ steps.get-read-file.outputs.IS_TO_PERFORM_CHECK == 'true' }}
         id: create-temp-file
         run: |
           echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}"
@@ -144,19 +144,19 @@ jobs:
       - name: Validate if exists other content
         id: validate-existence
         run: |
-          files=${{ needs.get-type-of-content.outputs.OTHER_FILES }}
+          files=${{ needs.get-type-of-content.outputs.other-files }}
 
           if [ -z "$files" ]; then
             echo "No files found ouside of the '${{ env.reads-folder }}' directory."
-            echo "IS_TO_PERFORME_CHECK=false" >> "$GITHUB_OUTPUT"
+            echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
           else
             echo "Found files ouside of the '${{ env.reads-folder }}' directory."
-            echo "IS_TO_PERFORME_CHECK=true" >> "$GITHUB_OUTPUT"
+            echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Spellcheck the other content
-        if: ${{ steps.validate-existence.outputs.IS_TO_PERFORME_CHECK == 'true' }}
+        if: ${{ steps.validate-existence.outputs.IS_TO_PERFORM_CHECK == 'true' }}
         uses: rojopolis/spellcheck-github-actions@v0
         with:
-          source_files: ${{ needs.get-type-of-content.outputs.OTHER_FILES }}
+          source_files: ${{ needs.get-type-of-content.outputs.other-files }}
           task_name: Markdown
