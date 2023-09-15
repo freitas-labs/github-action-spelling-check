@@ -21,4 +21,3 @@ But why is this the case? I've sat down and compiled a list of reasons for why c
 - You want a cool little square logo in your GitHub profile (swag) 😎
 
 (this list may be updated from time to time whenever I discover more reasons)
-
