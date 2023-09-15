@@ -7,3 +7,7 @@ alexxubyte
 https
 lastmod
 github
+backend
+frontend
+codebases
+frontpage
