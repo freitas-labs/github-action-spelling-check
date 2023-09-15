@@ -11,6 +11,7 @@ jobs:
     outputs:
       read-files: ${{ steps.get-files.outputs.READ_FILES }}
       other-files: ${{ steps.get-files.outputs.OTHER_FILES }}
+      perform-check: ${{ steps.get-files.outputs.PERFORM_CHECK }}
 
     env:
       temporary-file-name: temp-file.md
@@ -23,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: List Pushed Files
+      - name: List Pushed Markdown Files
         id: list-pushed-files
         run: |
           echo "Before commit: ${{ github.event.before }}"
@@ -46,8 +47,8 @@ jobs:
           echo "To be checked files: $to_be_checked_files"
 
           if [ -z "$to_be_checked_files" ]; then
-            echo "No pushed files were found!!"
-            exit 125
+            echo "No files to be checked. Stop workflow!!"
+            echo "PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
           else
             # Filter files that are in the specific directory
             # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
@@ -63,6 +64,8 @@ jobs:
             echo "OTHER_FILES<<EOF" >> $GITHUB_OUTPUT
             echo "$other_files" >> $GITHUB_OUTPUT 
             echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
             
           fi
 
@@ -70,6 +73,7 @@ jobs:
     name: Check read content
     runs-on: ubuntu-latest
     needs: get-type-of-content
+    if: needs.get-type-of-content.status == 'success' && ${{ needs.get-type-of-content.outputs.perform-check == 'true' }}
 
     env:
       temporary-file-name: temp-file.md
@@ -136,6 +140,7 @@ jobs:
     name: Check other content
     runs-on: ubuntu-latest
     needs: get-type-of-content
+    if: needs.get-type-of-content.status == 'success' && ${{ needs.get-type-of-content.outputs.perform-check == 'true' }}
 
     env:
       reads-folder: content/reads/
