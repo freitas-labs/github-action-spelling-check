@@ -15,6 +15,7 @@ https://taylor.town/shave-a-yak
 
 ---
 
+
 > Yak Shaving is the last step of a series of steps that occurs when you find something you need to do. “I want to wax the car today.”  
 > “Oops, the hose is still broken from the winter. I’ll need to buy a new one at Home Depot.”  
 > “But Home Depot is on the other side of the Tappan Zee bridge and getting there without my EZPass is miserable because of the tolls.”  
