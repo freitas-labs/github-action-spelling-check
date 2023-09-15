@@ -73,7 +73,7 @@ jobs:
     name: Check read content
     runs-on: ubuntu-latest
     needs: get-type-of-content
-    if: needs.get-type-of-content.status == 'success' && ${{ needs.get-type-of-content.outputs.perform-check == 'true' }}
+    if: needs.get-type-of-content.status == 'success' && needs.get-type-of-content.outputs.perform-check == 'true'
 
     env:
       temporary-file-name: temp-file.md
@@ -140,7 +140,7 @@ jobs:
     name: Check other content
     runs-on: ubuntu-latest
     needs: get-type-of-content
-    if: needs.get-type-of-content.status == 'success' && ${{ needs.get-type-of-content.outputs.perform-check == 'true' }}
+    if: needs.get-type-of-content.status == 'success' && needs.get-type-of-content.outputs.perform-check == 'true'
 
     env:
       reads-folder: content/reads/
