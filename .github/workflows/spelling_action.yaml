@@ -31,7 +31,7 @@ jobs:
           echo "Current commit: ${{ github.sha }}"
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$added_files"
-          added_markdown_files=$(echo "added_files" | grep '.md') || true
+          added_markdown_files=$(echo "$added_files" | grep '.md') || true
           echo "$added_markdown_files"
           
           # multiline output
