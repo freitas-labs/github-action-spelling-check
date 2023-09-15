@@ -30,27 +30,29 @@ jobs:
           echo "Current commit: ${{ github.sha }}"
           added_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           echo "$added_files"
+          added_markdown_files=$(echo "added_files" | grep '.md') || true
+          echo "$added_markdown_files"
           
           # multiline output
-          echo "ADDED_FILES<<EOF" >> $GITHUB_OUTPUT
-          echo "$added_files" >> $GITHUB_OUTPUT 
+          echo "TO_BE_CHECKED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$added_markdown_files" >> $GITHUB_OUTPUT 
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get Files
         id: get-files
         run: |
           # Get the list of added files
-          added_files="${{ steps.list-pushed-files.outputs.ADDED_FILES }}"
-          echo "Added files: $added_files"
+          to_be_checked_files="${{ steps.list-pushed-files.outputs.TO_BE_CHECKED_FILES }}"
+          echo "To be checked files: $to_be_checked_files"
 
-          if [ -z "$added_files" ]; then
+          if [ -z "$to_be_checked_files" ]; then
             echo "No pushed files were found!!"
             exit 125
           else
             # Filter files that are in the specific directory
             # '|| true' is used to prevent the workflow from failing if grep returns a non-zero exit code
-            read_files=$(echo "$added_files" | grep '${{ env.reads-folder }}') || true
-            other_files=$(echo "$added_files" | grep -v '${{ env.reads-folder }}') || true
+            read_files=$(echo "$to_be_checked_files" | grep '${{ env.reads-folder }}') || true
+            other_files=$(echo "$to_be_checked_files" | grep -v '${{ env.reads-folder }}') || true
             echo "Read files: $read_files"
             echo "Other files: $other_files"
             
