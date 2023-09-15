@@ -54,10 +54,13 @@ jobs:
             echo "Read files: $read_files"
             echo "Other files: $other_files"
             
-            {
-              echo "READ_FILES=$read_files" 
-              echo "OTHER_FILES=$other_files" 
-            } >> "$GITHUB_OUTPUT"
+            echo "READ_FILES<<EOF" >> $GITHUB_OUTPUT
+            echo "$read_files" >> $GITHUB_OUTPUT 
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "OTHER_FILES<<EOF" >> $GITHUB_OUTPUT
+            echo "$other_files" >> $GITHUB_OUTPUT 
+            echo "EOF" >> $GITHUB_OUTPUT
             
           fi
 
@@ -80,26 +83,26 @@ jobs:
       - name: Validate if exists read content
         id: get-read-file
         run: |
-          filtered_files=${{ needs.get-type-of-content.outputs.read-files }}
-          # Check the size of the filtered_files array
-          if [ -z "$filtered_files" ]; then
+          read_files=${{ needs.get-type-of-content.outputs.read-files }}
+          # Check the size of the read_files array
+          if [ -z "$read_files" ]; then
             echo "No files found in the '${{ env.reads-folder }}' directory."
             echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
           else
             echo "Found files in the '${{ env.reads-folder }}' directory."
             
             # Get the first element if there is more than one
-            if [ $(echo "$filtered_files" | wc -l) -gt 1 ]; then
-              first_file=$(echo "$filtered_files" | head -n 1)
+            if [ $(echo "$read_files" | wc -l) -gt 1 ]; then
+              first_file=$(echo "$read_files" | head -n 1)
               echo "Found more than one file. Only the first file will be considered: $first_file"
               {
                 echo "PUSHED_READ_FILE=$first_file"
                 echo "IS_TO_PERFORM_CHECK=true"
               } >> "$GITHUB_OUTPUT"
             else
-              echo "Only one file found: $filtered_files"
+              echo "Only one file found: $read_files"
               {
-                echo "PUSHED_READ_FILE=$filtered_files"
+                echo "PUSHED_READ_FILE=$read_files"
                 echo "IS_TO_PERFORM_CHECK=true"
               } >> "$GITHUB_OUTPUT"
             fi
