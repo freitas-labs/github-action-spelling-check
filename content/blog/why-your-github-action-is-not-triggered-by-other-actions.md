@@ -8,7 +8,6 @@ lastmod: 2023-03-18T12:20:56+0000
 draft: false
 ---
 
-
 Last week I wrote about [how I configured a GitHub action to change this blog theme every day](https://joaomagfreitas.link/this-blog-changes-its-theme-every-day/). Today I will explain you why I lost some time trying to understand why that action was not triggering my deploy to GitHub Pages action.
 
 ## Before

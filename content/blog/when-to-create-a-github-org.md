@@ -8,7 +8,6 @@ lastmod: 2023-04-21T20:28:29+0100
 draft: false
 ---
 
-
 Whenever I'm starting to work on a new (side) project, I end up facing myself at creating a new GitHub organization to work on it.
 
 But why is this the case? I've sat down and compiled a list of reasons for why creating a new org makes sense:
