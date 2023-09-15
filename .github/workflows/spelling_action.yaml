@@ -83,7 +83,7 @@ jobs:
       - name: Validate if exists read content
         id: get-read-file
         run: |
-          read_files=${{ needs.get-type-of-content.outputs.read-files }}
+          read_files="${{ needs.get-type-of-content.outputs.read-files }}"
           # Check the size of the read_files array
           if [ -z "$read_files" ]; then
             echo "No files found in the '${{ env.reads-folder }}' directory."
@@ -147,7 +147,7 @@ jobs:
       - name: Validate if exists other content
         id: validate-existence
         run: |
-          files=${{ needs.get-type-of-content.outputs.other-files }}
+          files="${{ needs.get-type-of-content.outputs.other-files }}"
 
           if [ -z "$files" ]; then
             echo "No files found ouside of the '${{ env.reads-folder }}' directory."
