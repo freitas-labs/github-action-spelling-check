@@ -15,6 +15,7 @@ https://www.parand.com/a-completely-non-technical-explanation-of-ai.html
 
 ---
 
+
 This document will explain what neural networks are and how they work, which will help you understand how AI and machine learning work. In the scenario below you'll play the part of the neural network.
 
 Day One
