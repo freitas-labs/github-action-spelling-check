@@ -161,12 +161,17 @@ jobs:
             echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
           else
             echo "Found files ouside of the '${{ env.reads-folder }}' directory."
+
+            # join multiple lines into a single line
+            perform_check_files=$(echo "${{ needs.get-type-of-content.outputs.other-files }}" | sed ':a; N; $!ba; s/\n/ /g')
+
             echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
+            echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Spellcheck the other content
         if: ${{ steps.validate-existence.outputs.IS_TO_PERFORM_CHECK == 'true' }}
         uses: rojopolis/spellcheck-github-actions@v0
         with:
-          source_files: $(echo "${{ needs.get-type-of-content.outputs.other-files }}" | sed ':a; N; $!ba; s/\n/ /g')
+          source_files: ${{ steps.validate-existence.outputs.PERFORM_CHECK_FILES }}
           task_name: Markdown
