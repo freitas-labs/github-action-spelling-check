@@ -168,5 +168,5 @@ jobs:
         if: ${{ steps.validate-existence.outputs.IS_TO_PERFORM_CHECK == 'true' }}
         uses: rojopolis/spellcheck-github-actions@v0
         with:
-          source_files: content/blog/when-to-create-a-github-org.md content/blog/why-your-github-action-is-not-triggered-by-other-actions.md
+          source_files: $(echo "${{ needs.get-type-of-content.outputs.other-files }}" | sed ':a; N; $!ba; s/\n/ /g')
           task_name: Markdown
