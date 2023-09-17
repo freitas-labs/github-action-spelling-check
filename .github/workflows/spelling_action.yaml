@@ -123,7 +123,7 @@ jobs:
             new_file_name="$file$temporary_file_name"
             echo "Temporary file: $new_file_name"
             perform_check_files="$perform_check_files$new_file_name "
-            to_be_deleted_files="$to_be_deleted_files$new_file_name\n"
+            to_be_deleted_files=$"$to_be_deleted_files$new_file_name\n"
             sh ${{ env.scripts-folder }}copy_sections_to_file.sh $file $new_file_name
           done <<< "$read_files"
 
