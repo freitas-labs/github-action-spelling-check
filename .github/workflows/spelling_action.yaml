@@ -74,136 +74,136 @@ jobs:
             
           fi
 
-  # read-content:
-  #   name: Check read content
-  #   runs-on: ubuntu-latest
-  #   needs: get-type-of-content
-  #   if: needs.get-type-of-content.outputs.perform-check == 'true'
+  read-content:
+    name: Check read content
+    runs-on: ubuntu-latest
+    needs: get-type-of-content
+    if: needs.get-type-of-content.outputs.perform-check == 'true'
 
-  #   env:
-  #     temporary-file-name: temp-file.md
-  #     reads-folder: content/reads/
-  #     scripts-folder: .github/scripts/
+    env:
+      temporary-file-name: temp-file.md
+      reads-folder: content/reads/
+      scripts-folder: .github/scripts/
 
-  #   steps:
-  #     - name: Clone or Checkout repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - name: Clone or Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Validate if exists read content
-  #       id: get-read-file
-  #       run: |
-  #         read_files="${{ needs.get-type-of-content.outputs.read-files }}"
-  #         # Check the size of the read_files array
-  #         if [ -z "$read_files" ]; then
-  #           echo "No files found in the '${{ env.reads-folder }}' directory."
-  #           echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
-  #         else
-  #           echo "Found files in the '${{ env.reads-folder }}' directory."
+      - name: Validate if exists read content
+        id: get-read-file
+        run: |
+          read_files="${{ needs.get-type-of-content.outputs.read-files }}"
+          # Check the size of the read_files array
+          if [ -z "$read_files" ]; then
+            echo "No files found in the '${{ env.reads-folder }}' directory."
+            echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Found files in the '${{ env.reads-folder }}' directory."
             
-  #           echo "READ_FILES<<EOF" >> $GITHUB_OUTPUT
-  #           echo "$read_files" >> $GITHUB_OUTPUT 
-  #           echo "EOF" >> $GITHUB_OUTPUT
+            echo "READ_FILES<<EOF" >> $GITHUB_OUTPUT
+            echo "$read_files" >> $GITHUB_OUTPUT 
+            echo "EOF" >> $GITHUB_OUTPUT
             
-  #           echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
+            echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
 
-  #         fi
+          fi
 
-  #     - name: Create temporary file with content to be checked
-  #       if: ${{ steps.get-read-file.outputs.IS_TO_PERFORM_CHECK == 'true' }}
-  #       id: create-temp-file
-  #       run: |
-  #         echo "Read file: ${{ steps.get-read-file.outputs.READ_FILES }}"
-  #         read_files="${{ steps.get-read-file.outputs.READ_FILES }}"
-  #         temporary_file_name="${{ env.temporary-file-name }}"
-  #         newline=$'\n'
+      - name: Create temporary file with content to be checked
+        if: ${{ steps.get-read-file.outputs.IS_TO_PERFORM_CHECK == 'true' }}
+        id: create-temp-file
+        run: |
+          echo "Read file: ${{ steps.get-read-file.outputs.READ_FILES }}"
+          read_files="${{ steps.get-read-file.outputs.READ_FILES }}"
+          temporary_file_name="${{ env.temporary-file-name }}"
+          newline=$'\n'
 
-  #         perform_check_files=""
-  #         to_be_deleted_files=""
+          perform_check_files=""
+          to_be_deleted_files=""
 
-  #         # mark file as executable
-  #         chmod +x ${{ env.scripts-folder }}copy_sections_to_file.sh
+          # mark file as executable
+          chmod +x ${{ env.scripts-folder }}copy_sections_to_file.sh
 
-  #         while IFS= read -r file; do
-  #           new_file_name="$file$temporary_file_name"
-  #           echo "Temporary file: $new_file_name"
-  #           perform_check_files="$perform_check_files$new_file_name "
-  #           to_be_deleted_files="$to_be_deleted_files$new_file_name$newline"
-  #           sh ${{ env.scripts-folder }}copy_sections_to_file.sh $file $new_file_name
-  #         done <<< "$read_files"
+          while IFS= read -r file; do
+            new_file_name="$file$temporary_file_name"
+            echo "Temporary file: $new_file_name"
+            perform_check_files="$perform_check_files$new_file_name "
+            to_be_deleted_files="$to_be_deleted_files$new_file_name$newline"
+            sh ${{ env.scripts-folder }}copy_sections_to_file.sh $file $new_file_name
+          done <<< "$read_files"
 
-  #         # remove the last line from a variable
-  #         to_be_deleted_files=$(echo "$to_be_deleted_files" | sed '$d')
+          # remove the last line from a variable
+          to_be_deleted_files=$(echo "$to_be_deleted_files" | sed '$d')
 
-  #         echo "Files to be checked (temp files): $perform_check_files"
-  #         echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
+          echo "Files to be checked (temp files): $perform_check_files"
+          echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
           
-  #         echo "Files to be deleted (temp files): $to_be_deleted_files"
-  #         # multiline output
-  #         echo "TO_BE_DELETED_FILES<<EOF" >> $GITHUB_OUTPUT
-  #         echo "$to_be_deleted_files" >> $GITHUB_OUTPUT 
-  #         echo "EOF" >> $GITHUB_OUTPUT
+          echo "Files to be deleted (temp files): $to_be_deleted_files"
+          # multiline output
+          echo "TO_BE_DELETED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$to_be_deleted_files" >> $GITHUB_OUTPUT 
+          echo "EOF" >> $GITHUB_OUTPUT
 
-  #       shell: bash
+        shell: bash
 
-  #     - name: Spellcheck the temporary file
-  #       if: steps.create-temp-file.outcome == 'success'
-  #       uses: rojopolis/spellcheck-github-actions@v0
-  #       with:
-  #         source_files: ${{ steps.create-temp-file.outputs.PERFORM_CHECK_FILES }}
-  #         task_name: Markdown
+      - name: Spellcheck the temporary file
+        if: steps.create-temp-file.outcome == 'success'
+        uses: rojopolis/spellcheck-github-actions@v0
+        with:
+          source_files: ${{ steps.create-temp-file.outputs.PERFORM_CHECK_FILES }}
+          task_name: Markdown
 
-  #     - name: Delete temporary file
-  #       if: always() && steps.create-temp-file.outcome == 'success'
-  #       run: |
-  #         read_files="${{ steps.create-temp-file.outputs.TO_BE_DELETED_FILES }}"
+      - name: Delete temporary file
+        if: always() && steps.create-temp-file.outcome == 'success'
+        run: |
+          read_files="${{ steps.create-temp-file.outputs.TO_BE_DELETED_FILES }}"
 
-  #         # mark file as executable
-  #         chmod +x ${{ env.scripts-folder }}delete_file.sh
+          # mark file as executable
+          chmod +x ${{ env.scripts-folder }}delete_file.sh
 
-  #         while IFS= read -r file; do
-  #           ${{ env.scripts-folder }}delete_file.sh $file
-  #         done <<< "$read_files"
+          while IFS= read -r file; do
+            ${{ env.scripts-folder }}delete_file.sh $file
+          done <<< "$read_files"
 
-  #       shell: bash
+        shell: bash
 
-  # other-content:
-    # name: Check other content
-    # runs-on: ubuntu-latest
-    # needs: get-type-of-content
-    # if: needs.get-type-of-content.outputs.perform-check == 'true'
+  other-content:
+    name: Check other content
+    runs-on: ubuntu-latest
+    needs: get-type-of-content
+    if: needs.get-type-of-content.outputs.perform-check == 'true'
 
-    # env:
-    #   reads-folder: content/reads/
+    env:
+      reads-folder: content/reads/
 
-    # steps:
-    #   - name: Clone or Checkout repository
-    #     uses: actions/checkout@v4
-    #     with:
-    #       fetch-depth: 0
+    steps:
+      - name: Clone or Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    #   - name: Validate if exists other content
-    #     id: validate-existence
-    #     run: |
-    #       files="${{ needs.get-type-of-content.outputs.other-files }}"
+      - name: Validate if exists other content
+        id: validate-existence
+        run: |
+          files="${{ needs.get-type-of-content.outputs.other-files }}"
 
-    #       if [ -z "$files" ]; then
-    #         echo "No files found ouside of the '${{ env.reads-folder }}' directory."
-    #         echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
-    #       else
-    #         echo "Found files ouside of the '${{ env.reads-folder }}' directory."
+          if [ -z "$files" ]; then
+            echo "No files found ouside of the '${{ env.reads-folder }}' directory."
+            echo "IS_TO_PERFORM_CHECK=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Found files ouside of the '${{ env.reads-folder }}' directory."
 
-    #         # join multiple lines into a single line
-    #         perform_check_files=$(echo "${{ needs.get-type-of-content.outputs.other-files }}" | sed ':a; N; $!ba; s/\n/ /g')
+            # join multiple lines into a single line
+            perform_check_files=$(echo "${{ needs.get-type-of-content.outputs.other-files }}" | sed ':a; N; $!ba; s/\n/ /g')
 
-    #         echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
-    #         echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
-    #       fi
+            echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
+            echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
+          fi
 
-    #   - name: Spellcheck the other content
-    #     if: ${{ steps.validate-existence.outputs.IS_TO_PERFORM_CHECK == 'true' }}
-    #     uses: rojopolis/spellcheck-github-actions@v0
-    #     with:
-    #       source_files: ${{ steps.validate-existence.outputs.PERFORM_CHECK_FILES }}
-    #       task_name: Markdown
+      - name: Spellcheck the other content
+        if: ${{ steps.validate-existence.outputs.IS_TO_PERFORM_CHECK == 'true' }}
+        uses: rojopolis/spellcheck-github-actions@v0
+        with:
+          source_files: ${{ steps.validate-existence.outputs.PERFORM_CHECK_FILES }}
+          task_name: Markdown
