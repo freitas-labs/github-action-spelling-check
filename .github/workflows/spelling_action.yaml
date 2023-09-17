@@ -112,6 +112,7 @@ jobs:
           echo "Read file: ${{ steps.get-read-file.outputs.READ_FILES }}"
           read_files="${{ steps.get-read-file.outputs.READ_FILES }}"
           temporary_file_name="${{ env.temporary-file-name }}"
+          newline=$'\n'
 
           perform_check_files=""
           to_be_deleted_files=""
@@ -123,13 +124,14 @@ jobs:
             new_file_name="$file$temporary_file_name"
             echo "Temporary file: $new_file_name"
             perform_check_files="$perform_check_files$new_file_name "
-            to_be_deleted_files=$"$to_be_deleted_files$new_file_name\n"
+            to_be_deleted_files="$to_be_deleted_files$new_file_name$newline"
             sh ${{ env.scripts-folder }}copy_sections_to_file.sh $file $new_file_name
           done <<< "$read_files"
 
           echo "Files to be checked (temp files): $perform_check_files"
           echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
           
+          echo "Files to be deleted (temp files): $to_be_deleted_files"
           # multiline output
           echo "TO_BE_DELETED_FILES<<EOF" >> $GITHUB_OUTPUT
           echo "$to_be_deleted_files" >> $GITHUB_OUTPUT 
