@@ -128,6 +128,9 @@ jobs:
             sh ${{ env.scripts-folder }}copy_sections_to_file.sh $file $new_file_name
           done <<< "$read_files"
 
+          # remove the last line from a variable
+          to_be_deleted_files=$(echo "$to_be_deleted_files" | sed '$d')
+
           echo "Files to be checked (temp files): $perform_check_files"
           echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
           
