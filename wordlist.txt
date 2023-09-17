@@ -11,3 +11,5 @@ backend
 frontend
 codebases
 frontpage
+taylor
+troesh
