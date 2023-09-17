@@ -129,7 +129,11 @@ jobs:
 
           echo "Files to be checked (temp files): $perform_check_files"
           echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
-          echo "TO_BE_DELETED_FILES=$to_be_deleted_files" >> "$GITHUB_OUTPUT"
+          
+          # multiline output
+          echo "TO_BE_DELETED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$to_be_deleted_files" >> $GITHUB_OUTPUT 
+          echo "EOF" >> $GITHUB_OUTPUT
 
         shell: bash
 
