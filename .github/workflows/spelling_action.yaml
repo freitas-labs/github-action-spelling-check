@@ -97,43 +97,56 @@ jobs:
           else
             echo "Found files in the '${{ env.reads-folder }}' directory."
             
-            # Get the first element if there is more than one
-            if [ $(echo "$read_files" | wc -l) -gt 1 ]; then
-              first_file=$(echo "$read_files" | head -n 1)
-              echo "Found more than one file. Only the first file will be considered: $first_file"
-              {
-                echo "PUSHED_READ_FILE=$first_file"
-                echo "IS_TO_PERFORM_CHECK=true"
-              } >> "$GITHUB_OUTPUT"
-            else
-              echo "Only one file found: $read_files"
-              {
-                echo "PUSHED_READ_FILE=$read_files"
-                echo "IS_TO_PERFORM_CHECK=true"
-              } >> "$GITHUB_OUTPUT"
-            fi
+            echo "READ_FILES<<EOF" >> $GITHUB_OUTPUT
+            echo "$read_files" >> $GITHUB_OUTPUT 
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+            echo "IS_TO_PERFORM_CHECK=true" >> "$GITHUB_OUTPUT"
+
           fi
 
       - name: Create temporary file with content to be checked
         if: ${{ steps.get-read-file.outputs.IS_TO_PERFORM_CHECK == 'true' }}
         id: create-temp-file
         run: |
-          echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }}"
-          echo "Temporary file: ${{ env.temporary-file-name }}"
-          ${{ env.scripts-folder }}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILE }} ${{ env.temporary-file-name }}
+          echo "Read file: ${{ steps.get-read-file.outputs.PUSHED_READ_FILES }}"
+          read_files="${{ steps.get-read-file.outputs.PUSHED_READ_FILES }}"
+
+          perform_check_files=""
+          to_be_deleted_files=""
+          
+          for file in $read_files
+          do
+            new_file_name="$file${{ env.temporary-file-name }}"
+            echo "Temporary file: ${{ new_file_name }}"
+            perform_check_files="$perform_check_files$new_file_name "
+            to_be_deleted_files="$to_be_deleted_files$new_file_name\n"
+            ${{ env.scripts-folder }}copy_sections_to_file.sh ${{ steps.get-read-file.outputs.PUSHED_READ_FILES }} ${{ new_file_name }}
+          done
+
+          echo "Files to be checked (temp files): $perform_check_files"
+          echo "PERFORM_CHECK_FILES=$perform_check_files" >> "$GITHUB_OUTPUT"
+          echo "TO_BE_DELETED_FILES=$to_be_deleted_files" >> "$GITHUB_OUTPUT"
+
         shell: bash
 
       - name: Spellcheck the temporary file
         if: steps.create-temp-file.outcome == 'success'
         uses: rojopolis/spellcheck-github-actions@v0
         with:
-          source_files: ${{ env.temporary-file-name }}
+          source_files: ${{ steps.validate-existence.outputs.PERFORM_CHECK_FILES }}
           task_name: Markdown
 
       - name: Delete temporary file
         if: always() && steps.create-temp-file.outcome == 'success'
         run: |
-          ${{ env.scripts-folder }}delete_file.sh ${{ env.temporary-file-name }}
+          read_files="${{ steps.get-read-file.outputs.TO_BE_DELETED_FILES }}"
+
+          for file in $read_files
+          do
+            ${{ env.scripts-folder }}delete_file.sh $file
+          done
+
         shell: bash
 
   other-content:
